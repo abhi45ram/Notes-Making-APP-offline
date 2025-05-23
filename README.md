@@ -4,7 +4,7 @@
 # Setup Instructions
 # 1. Clone the Repository
 
-git clone https://github.com/yourusername/offline-notes-app.git
+git clone  https://github.com/abhi45ram/Notes-Making-APP-offline.git
 cd my-notes-app
  2. Install Dependencies
 npm install
