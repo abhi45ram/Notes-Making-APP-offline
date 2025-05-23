@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { NotesContext } from '../context/NotesContext';
 import ReactMde from 'react-mde';
 import ReactMarkdown from 'react-markdown';
@@ -11,25 +11,25 @@ export default function NoteEditor({ noteId }) {
   const [title, setTitle] = useState(note.title || '');
   const [content, setContent] = useState(note.content || '');
   const [selectedTab, setSelectedTab] = useState('write');
-  const [isSaving, setIsSaving] = useState(false); 
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = useCallback(async () => {
+    setIsSaving(true);
+    await updateNote(noteId, { title, content });
+    setTimeout(() => setIsSaving(false), 1000);
+  }, [noteId, title, content, updateNote]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
       handleSave();
     }, 500);
     return () => clearTimeout(handler);
-  }, [title, content]);
+  }, [title, content, handleSave]);
 
   useEffect(() => {
     setTitle(note.title || '');
     setContent(note.content || '');
   }, [note]);
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    await updateNote(noteId, { title, content });
-    setTimeout(() => setIsSaving(false), 1000); 
-  };
 
   return (
     <div className="note-editor">
