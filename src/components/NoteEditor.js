@@ -1,4 +1,10 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, {
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { NotesContext } from '../context/NotesContext';
 import ReactMde from 'react-mde';
 import ReactMarkdown from 'react-markdown';
@@ -6,7 +12,10 @@ import 'react-mde/lib/styles/css/react-mde-all.css';
 
 export default function NoteEditor({ noteId }) {
   const { notes, updateNote } = useContext(NotesContext);
-  const note = notes.find((n) => n.id === noteId) || {};
+
+  const note = useMemo(() => {
+    return notes.find((n) => n.id === noteId) || {};
+  }, [notes, noteId]);
 
   const [title, setTitle] = useState(note.title || '');
   const [content, setContent] = useState(note.content || '');
