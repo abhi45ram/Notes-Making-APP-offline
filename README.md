@@ -1,70 +1,77 @@
 # Getting Started with Create React App
+##  Deployed Demo : https://notes-making-offlines.netlify.app/
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Setup Instructions
+# 1. Clone the Repository
 
-## Available Scripts
+git clone https://github.com/yourusername/offline-notes-app.git
+cd my-notes-app
+ 2. Install Dependencies
+npm install
 
-In the project directory, you can run:
+# 3. Start the Mock Backend (json-server)
 
-### `npm start`
+npx json-server --watch db.json --port 3001
+Make sure db.json is present in the root with the following initial content:
+Edit
+{
+  "notes": []
+}
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# 4. Start the React App
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+npm start
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# Sync & Connectivity Behavior
+Uses navigator.onLine and event listeners to detect connectivity.
 
-### `npm run build`
+Offline changes are stored locally in IndexedDB.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+When online, all changes are synced automatically via REST endpoints:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+GET /notes
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+POST /notes
 
-### `npm run eject`
+PUT /notes/:id
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+DELETE /notes/:id
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Design Decisions
+Offline Storage
+Dexie (via idb) is used to simplify IndexedDB operations.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Notes include a synced flag to track sync state.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Sync Strategy
+Last-write-wins based on updatedAt timestamp.
 
-## Learn More
+Sync is initiated whenever:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+App comes online.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Local changes occur while online.
 
-### Code Splitting
+# Autosave
+Title and content edits trigger autosave after 500ms of inactivity using a custom debounce hook.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+# Assumptions & Limitations
+Conflict resolution is basic: latest timestamp wins. No UI for manual conflict resolution yet.
 
-### Analyzing the Bundle Size
+Only supports one user/session — multi-user support is not implemented.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+No authentication or login.
 
-### Making a Progressive Web App
+PWA/service worker not included (can be added for full offline installability).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+# Testing the App
+To simulate offline mode:
 
-### Advanced Configuration
+Open DevTools → Network → "Offline"
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Add/edit/delete notes — you’ll see status: Unsynced
 
-### Deployment
+Reconnect — watch sync happen in real-time
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
